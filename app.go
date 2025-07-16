@@ -28,7 +28,7 @@ func Run() {
 		cli.BoolFlag{
 			Name:   "dry-run",
 			Usage:  "dry run disables docker push",
-			EnvVar: "PLUGIN_DRY_RUN",
+			EnvVar: "PLUGIN_DRY_RUN, PLUGIN_NO_PUSH",
 		},
 		cli.StringFlag{
 			Name:   "remote.url",
@@ -415,6 +415,31 @@ func Run() {
 			Usage:  "additional options to pass directly to the buildx command",
 			EnvVar: "PLUGIN_BUILDX_OPTIONS",
 		},
+		cli.StringFlag{
+			Name:   "buildx-options-semicolon",
+			Usage:  "additional options to pass directly to the buildx command, separated by semicolons",
+			EnvVar: "PLUGIN_BUILDX_OPTIONS_SEMICOLON",
+		},
+		cli.BoolFlag{
+			Name:   "push-only",
+			Usage:  "skip build and only push images",
+			EnvVar: "PLUGIN_PUSH_ONLY",
+		},
+		cli.StringFlag{
+			Name:   "source-image",
+			Usage:  "source image to tag and push (format: repo:tag)",
+			EnvVar: "PLUGIN_SOURCE_IMAGE",
+		},
+		cli.StringFlag{
+			Name:   "source-tar-path",
+			Usage:  "path to Docker image tar file to load and push",
+			EnvVar: "PLUGIN_SOURCE_TAR_PATH",
+		},
+		cli.StringFlag{
+			Name:   "tar-path",
+			Usage:  "path to save Docker image as tar file",
+			EnvVar: "PLUGIN_TAR_PATH, PLUGIN_DESTINATION_TAR_PATH",
+		},
 	}
 
 	if err := app.Run(os.Args); err != nil {
@@ -477,6 +502,7 @@ func run(c *cli.Context) error {
 			HarnessSelfHostedS3SecretKey: c.String("harness-self-hosted-s3-secret-key"),
 			HarnessSelfHostedGcpJsonKey:  c.String("harness-self-hosted-gcp-json-key"),
 			BuildxOptions:                c.StringSlice("buildx-options"),
+			BuildxOptionsSemicolon:       c.String("buildx-options-semicolon"),
 		},
 		Daemon: Daemon{
 			Registry:         c.String("docker.registry"),
@@ -510,6 +536,10 @@ func run(c *cli.Context) error {
 		BaseImageRegistry: c.String("docker.baseimageregistry"),
 		BaseImageUsername: c.String("docker.baseimageusername"),
 		BaseImagePassword: c.String("docker.baseimagepassword"),
+		PushOnly:          c.Bool("push-only"),
+		SourceImage:       c.String("source-image"),
+		SourceTarPath:     c.String("source-tar-path"),
+		TarPath:           c.String("tar-path"),
 	}
 
 	if c.Bool("tags.auto") {
