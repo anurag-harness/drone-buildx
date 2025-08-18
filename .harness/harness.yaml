@@ -442,6 +442,8 @@ pipeline:
                     os: Windows
             delegateSelectors:
               - windows-vm
+            when:
+              pipelineStatus: Success
         - stage:
             identifier: winamd64
             type: CI
@@ -515,6 +517,8 @@ pipeline:
                         condition: <+codebase.build.type> == "branch"
               buildIntelligence:
                 enabled: false
+            when:
+              pipelineStatus: Success
     - parallel:
         - stage:
             identifier: Manifest
